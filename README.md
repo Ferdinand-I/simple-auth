@@ -210,7 +210,6 @@ docker-compose down -v
 | `DB_NAME` | Имя БД | `go-auth` |
 | `SERVER_PORT` | Порт сервера | `8000` |
 | `AUTH_SECRET_KEY` | Секретный ключ для JWT | `random-string` |
-| `AUTH_ALGORITHM` | Алгоритм JWT | `HS256` |
 | `AUTH_ACCESS_TOKEN_EXPIRES_MINUTES` | Срок жизни токена (минуты) | `60` |
 
 ## Разработка

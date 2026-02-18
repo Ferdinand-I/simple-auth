@@ -12,5 +12,10 @@ func ConnectDB(dsn string) (*sqlx.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("connecting to database: %w", err)
 	}
+
+	db.SetMaxOpenConns(15)
+	db.SetMaxIdleConns(10)
+	db.SetConnMaxLifetime(0)
+
 	return db, nil
 }
