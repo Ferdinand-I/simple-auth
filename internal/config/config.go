@@ -33,7 +33,6 @@ type DB struct {
 
 type Auth struct {
 	SecretKey                 []byte `envconfig:"AUTH_SECRET_KEY" required:"true"`
-	Algorithm                 string `envconfig:"AUTH_ALGORITHM" required:"true"`
 	AccessTokenExpiresMinutes time.Duration
 	RefreshTokenExpiresDays   time.Duration
 }
