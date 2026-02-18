@@ -19,6 +19,7 @@ func main() {
 	}
 	defer db.Close()
 		server := server.New()
-	server.SetUp(db)
+
+	server.SetUp(db, cfg)
 	server.Run(":" + cfg.Server.Port)
 }

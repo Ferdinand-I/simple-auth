@@ -1,7 +1,9 @@
 package server
 
 import (
+	"authapp/internal/config"
 	"authapp/internal/handlers"
+	"authapp/internal/middleware"
 	"authapp/internal/service"
 	"authapp/internal/storage/repository"
 
@@ -19,17 +21,17 @@ func New() *Server {
 	}
 }
 
-func (s *Server) SetUp(db *sqlx.DB) {
+func (s *Server) SetUp(db *sqlx.DB, cfg *config.Config) {
 	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(userRepo, cfg)
 	userHandler := handlers.NewUserHandler(userService)
-	
+
 	apiGroup := s.Router.Group("/api/v1")
-	
+
 	usersGroup := apiGroup.Group("/users")
 	usersGroup.POST("/", userHandler.CreateUser)
-	usersGroup.GET("/secret", handlers.GetSecret)
-	
+	usersGroup.GET("/secret", middleware.AuthMiddleware(userService), handlers.GetSecret)
+
 	authGroup := apiGroup.Group("/auth")
 	authGroup.POST("/login", userHandler.Authenticate)
 }

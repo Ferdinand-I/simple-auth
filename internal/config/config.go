@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -30,6 +31,13 @@ type DB struct {
 	DBName   string `envconfig:"DB_NAME" required:"true"`
 }
 
+type Auth struct {
+	SecretKey                 []byte `envconfig:"AUTH_SECRET_KEY" required:"true"`
+	Algorithm                 string `envconfig:"AUTH_ALGORITHM" required:"true"`
+	AccessTokenExpiresMinutes time.Duration
+	RefreshTokenExpiresDays   time.Duration
+}
+
 type Server struct {
 	Port string `envconfig:"SERVER_PORT" required:"true"`
 }
@@ -37,6 +45,7 @@ type Server struct {
 type Config struct {
 	DB     DB
 	Server Server
+	Auth   Auth
 }
 
 func (cfg *DB) DSN() string {
@@ -72,8 +81,21 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("processing server config: %w", err)
 	}
 
+	var authCfg Auth
+	if err := envconfig.Process("", &authCfg); err != nil {
+		return nil, fmt.Errorf("processing auth config: %w", err)
+	}
+
+	if authCfg.AccessTokenExpiresMinutes == 0 {
+		authCfg.AccessTokenExpiresMinutes = 60 * time.Minute
+	}
+	if authCfg.RefreshTokenExpiresDays == 0 {
+		authCfg.RefreshTokenExpiresDays = 7 * 24 * time.Hour
+	}
+
 	return &Config{
 		DB:     dbCfg,
 		Server: serverCfg,
+		Auth:   authCfg,
 	}, nil
 }

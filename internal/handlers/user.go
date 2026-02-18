@@ -2,15 +2,10 @@ package handlers
 
 import (
 	"authapp/internal/service"
-	"log"
-
+	"authapp/internal/storage/models"
 	"github.com/gin-gonic/gin"
+	"log"
 )
-
-type UserCreateDTO struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
 
 type UserHandler struct {
 	UserService *service.UserService
@@ -23,7 +18,7 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) CreateUser(c *gin.Context) {
-	dto := &UserCreateDTO{}
+	dto := &models.UserCreateDTO{}
 	if err := c.ShouldBindJSON(dto); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -40,17 +35,17 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 }
 
 func (h *UserHandler) Authenticate(c *gin.Context) {
-	dto := &UserCreateDTO{}
+	dto := &models.UserLoginDTO{}
 	if err := c.ShouldBindJSON(dto); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	user, err := h.UserService.Authenticate(dto.Username, dto.Password)
+	jwtResp, err := h.UserService.Authenticate(dto.Username, dto.Password)
 	if err != nil {
 		c.JSON(401, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(200, gin.H{"id": user.ID, "username": user.Username})
+	c.JSON(200, jwtResp)
 }
